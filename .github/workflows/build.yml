@@ -388,6 +388,15 @@ jobs:
           pattern: runtime-*
           path: .runtime-cache
           merge-multiple: true
+      # Microsoft's twelve Visual C++ runtime DLLs and MFC's two (14), from the
+      # official redistributable, unmodified. Staged before the build so
+      # prepare-vcruntime.sh finds them; bundled into this run's IPA only.
+      - name: Fetch Microsoft's Visual C++ runtime DLLs
+        run: |
+          brew install cabextract
+          bash .github/ci/fetch-vcruntime.sh
+          python3 tests/host/check-vcruntime.py --strict
+          ls app/Madeira/x86_64-vcruntime/*.dll | wc -l
       - name: Build IPA
         run: tools/build-ipa.sh
       - uses: actions/cache/save@v4
